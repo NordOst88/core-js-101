@@ -441,8 +441,16 @@ function toStringList(arr) {
  *      { country: 'Russia',  city: 'Saint Petersburg' }
  *    ]
  */
-function sortCitiesArray(/* arr */) {
-  throw new Error('Not implemented');
+function sortCitiesArray(arr) {
+  return arr.sort((a, b) => {
+    if (a.country > b.country) return 1;
+    if (a.country < b.country) return -1;
+    if (a.country === b.country) {
+      if (a.city > b.city) return 1;
+      if (a.city < b.city) return -1;
+    }
+    return 0;
+  });
 }
 
 /**
@@ -463,8 +471,15 @@ function sortCitiesArray(/* arr */) {
  *           [0,0,0,1,0],
  *           [0,0,0,0,1]]
  */
-function getIdentityMatrix(/* n */) {
-  throw new Error('Not implemented');
+function getIdentityMatrix(n) {
+  const result = Array(n).fill(Array).map(() => Array(n).fill(0));
+
+  return result.map((el, i) => (
+    el.map((el2, i2) => {
+      if (i === i2) return 1;
+      return 0;
+    })
+  ));
 }
 
 /**
@@ -480,8 +495,9 @@ function getIdentityMatrix(/* n */) {
  *     0, 100 => [ 0, 1, 2, ..., 100 ]
  *     3, 3   => [ 3 ]
  */
-function getIntervalArray(/* start, end */) {
-  throw new Error('Not implemented');
+function getIntervalArray(start, end) {
+  const result = Array(end - start + 1).fill(0);
+  return result.map((val, i) => start + i);
 }
 
 /**
@@ -495,8 +511,8 @@ function getIntervalArray(/* start, end */) {
  *   [ 'a', 'a', 'a', 'a' ]  => [ 'a' ]
  *   [ 1, 1, 2, 2, 3, 3, 4, 4] => [ 1, 2, 3, 4]
  */
-function distinct(/* arr */) {
-  throw new Error('Not implemented');
+function distinct(arr) {
+  return Array(...new Set(arr));
 }
 
 /**
@@ -529,8 +545,19 @@ function distinct(/* arr */) {
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  const map = new Map();
+  const countries = array.map(keySelector);
+  const cities = array.map(valueSelector);
+  countries.map((el, i) => {
+    if (map.has(el) === false) {
+      map.set(el, [cities[i]]);
+    } else {
+      map.set(el, map.get(el).concat([cities[i]]));
+    }
+    return el;
+  });
+  return map;
 }
 
 
