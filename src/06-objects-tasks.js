@@ -116,33 +116,73 @@ function fromJSON(proto, json) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  string: '',
+  elementValue: 0,
+  idValue: 0,
+  classValue: 0,
+  attrValue: 0,
+  pseudoClassValue: 0,
+  pseudoElementValue: 0,
+
+  pseudoElementError() {
+    throw new Error(
+      'Element, id and pseudo-element should not occur more then one time inside the selector',
+    );
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  orderError() {
+    throw new Error(
+      'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+    );
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  stringify() {
+    return this.string;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    if (this.idValue) this.orderError();
+    if (this.elementValue) this.pseudoElementError();
+    const string = this.string + value;
+    return { ...this, string, elementValue: value };
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    if (this.idValue) this.pseudoElementError();
+    if (this.classValue || this.pseudoClassValue || this.pseudoElementValue) this.orderError();
+    const string = `${this.string}#${value}`;
+    return { ...this, string, idValue: value };
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    if (this.attrValue || this.pseudoClassValue) this.orderError();
+    const string = `${this.string}.${value}`;
+    return { ...this, string, classValue: value };
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    if (this.pseudoClassValue) this.orderError();
+    const string = `${this.string}[${value}]`;
+    return { ...this, string, attrValue: value };
   },
+
+  pseudoClass(value) {
+    if (this.pseudoElementValue) this.orderError();
+    const string = `${this.string}:${value}`;
+    return { ...this, string, pseudoClassValue: value };
+  },
+
+  pseudoElement(value) {
+    if (this.pseudoElementValue) this.pseudoElementError();
+    const string = `${this.string}::${value}`;
+    return { ...this, string, pseudoElementValue: value };
+  },
+
+  combine(selector1, combinator, selector2) {
+    const string = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return { ...this, string };
+  },
+
 };
 
 
